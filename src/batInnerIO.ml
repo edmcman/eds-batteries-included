@@ -26,28 +26,30 @@ let weak_create size     = BatInnerWeaktbl.create size
 let weak_add set element = BatInnerWeaktbl.add set element ()
 let weak_iter f s        = BatInnerWeaktbl.iter (fun x _ -> f x) s
 
-type input = {
+type 'cap input = {
   mutable in_read  : unit -> char;
   mutable in_input : string -> int -> int -> int;
   mutable in_close : unit -> unit;
+  mutable in_seek : int -> unit;
   in_id: int;(**A unique identifier.*)
-  in_upstream: input weak_set
+  in_upstream: [`Read] input weak_set
 }
 
-type 'a output = {
+type ('cap, 'a) output = {
   mutable out_write : char -> unit;
   mutable out_output: string -> int -> int -> int;
   mutable out_close : unit -> 'a;
   mutable out_flush : unit -> unit;
+  mutable out_seek : int -> unit;
   out_id:    int;(**A unique identifier.*)
-  out_upstream:unit output weak_set
+  out_upstream: ([`Write], unit) output weak_set
     (** The set of outputs which have been created to write to this output.*)
 }
 
 
 module Input =
 struct
-  type t = input
+  type t = [`Read] input
   let compare x y = x.in_id - y.in_id
   let hash    x   = x.in_id
   let equal   x y = x.in_id = y.in_id
@@ -55,7 +57,7 @@ end
 
 module Output =
 struct
-  type t = unit output
+  type t = ([`Write], unit) output
   let compare x y = x.out_id - y.out_id
   let hash    x   = x.out_id
   let equal   x y = x.out_id = y.out_id
@@ -72,7 +74,7 @@ module Outputs= Weak.Make(Output)
 (** {6 Primitive operations}*)
 
 external noop        : unit      -> unit        = "%ignore"
-external cast_output : 'a output -> unit output = "%identity"
+external cast_output : (_, 'a) output -> ([`Write], unit) output = "%identity"
 let lock = ref BatConcurrent.nolock
 
 
@@ -118,22 +120,29 @@ let close_in i =
     i.in_close();
     i.in_read <- f;
     i.in_input <- f;
-    i.in_close <- noop (*Double closing is not a problem*)
+    i.in_close <- noop; (*Double closing is not a problem*)
+    i.in_seek <- f
 
+(* these should never be called if the capability system is working correctly *)
+let bad_seek_in _ = invalid_arg "IO.seek_in"
+let bad_seek_out _ = invalid_arg "IO.seek_out"
 
-let wrap_in ~read ~input ~close ~underlying =
+let wrap_in_gen ?(seek = bad_seek_in) ~read ~input ~close ~underlying =
   let result =
   {
     in_read     = read;
     in_input    = input;
     in_close    = close;
     in_id       = uid ();
+    in_seek     = bad_seek_in;
     in_upstream = weak_create 2
   }
 in
     BatConcurrent.sync !lock (List.iter (fun x -> weak_add x.in_upstream result)) underlying;
     Gc.finalise close_in result;
     result
+
+let wrap_in ~read ~input ~close ~underlying = wrap_in_gen ?seek:None ~read ~input ~close ~underlying
 
 let inherit_in ?read ?input ?close inp =
   let read  = match read  with None -> inp.in_read | Some f -> f
@@ -145,12 +154,15 @@ let inherit_in ?read ?input ?close inp =
 let create_in ~read ~input ~close =
   wrap_in ~read ~input ~close ~underlying:[]
 
+let create_in_seekable ~read ~input ~close ~seek =
+  wrap_in_gen ~read ~input ~close ~seek ~underlying:[]
+
 (*For recursively closing outputs, we need either polymorphic
   recursion or a hack. Well, a hack it is.*)
 
 (*Close a [unit output] -- note that this works for any kind of output,
   thanks to [cast_output], but this can't return a proper result.*)
-let rec close_unit (o:unit output) : unit =
+let rec close_unit (o:(_, unit) output) : unit =
   let forbidden _ = raise Output_closed in
     o.out_flush ();
     weak_iter close_unit o.out_upstream;
@@ -171,7 +183,7 @@ let close_out o =
 
 let ignore_close_out out = ignore (close_out out)
 
-let wrap_out ~write ~output ~flush ~close ~underlying  =
+let wrap_out_gen ?(seek=bad_seek_out) ~write ~output ~flush ~close ~underlying  =
   let rec out =
     {
       out_write  = write;
@@ -190,6 +202,9 @@ let wrap_out ~write ~output ~flush ~close ~underlying  =
     Gc.finalise ignore_close_out out;
     out
 
+let wrap_out ~write ~output ~flush ~close ~underlying =
+  wrap_out_gen ?seek:None ~write ~output ~flush ~close ~underlying
+
 let inherit_out ?write ?output ?flush ?close out =
   let write = match write  with None -> out.out_write | Some f -> f
   and output= match output with None -> out.out_output| Some f -> f
@@ -199,6 +214,9 @@ let inherit_out ?write ?output ?flush ?close out =
 
 let create_out ~write ~output ~flush ~close =
   wrap_out ~write ~output ~flush ~close ~underlying:[]
+
+let create_out_seekable ~write ~output ~flush ~close ~seek =
+  wrap_out_gen ~write ~output ~flush ~close ~seek ~underlying:[]
 
 let read i = i.in_read()
 
@@ -266,7 +284,6 @@ let really_nread i n =
 	ignore(really_input i s 0 n);
 	s
 
-
 let write o x = o.out_write x
 
 let nwrite o s =
@@ -333,6 +350,8 @@ let input_string s =
       ~close:noop
 
 
+let seek_in i n = i.in_seek n
+let seek_out o n = o.out_seek n
 
 (**
    {6 Standard BatIO}
@@ -361,11 +380,13 @@ let placeholder_in =
     in_input = (fun _ _ _ -> 0);
     in_close = noop;
     in_id    = (-1);
+    in_seek  = bad_seek_in;
     in_upstream= weak_create 0 }
-let input_channel ?(autoclose=true) ?(cleanup=false) ch =
+
+let input_channel_gen ~autoclose ~cleanup ch =
   let me = ref placeholder_in (*placeholder*)
   in let result =
-  create_in
+  create_in_seekable
     ~read:(fun () -> try input_char ch
 	   with End_of_file ->
 	     if autoclose then close_in !me;
@@ -379,12 +400,19 @@ let input_channel ?(autoclose=true) ?(cleanup=false) ch =
 		  end
 		else n)
     ~close:(if cleanup then fun () -> Pervasives.close_in ch else ignore)
+    ~seek:(fun n -> Pervasives.seek_in ch n)
   in
     me := result;
     result
 
-let output_channel ?(cleanup=false) ch =
-    create_out
+let input_channel ?(autoclose = true) ?(cleanup = false) ch =
+  (input_channel_gen ~autoclose ~cleanup ch :> [`Read] input)
+
+let input_channel_seekable ?(autoclose = true) ?(cleanup = false) ch =
+  input_channel_gen ~autoclose ~cleanup ch
+
+let output_channel_gen ~cleanup ch =
+    create_out_seekable
       ~write: (fun c     -> output_char ch c)
       ~output:(fun s p l -> Pervasives.output ch s p l; l)
       ~close: (if cleanup then fun () ->
@@ -398,7 +426,11 @@ let output_channel ?(cleanup=false) ch =
 		   Pervasives.flush ch
 		 end)
       ~flush: (fun ()    -> Pervasives.flush ch)
+      ~seek:(fun n -> Pervasives.seek_out ch n)
 
+let output_channel ?(cleanup = false) ch = (output_channel_gen ~cleanup ch :> ([`Write], _) output)
+
+let output_channel_seekable ?(cleanup = false) ch = output_channel_gen ~cleanup ch
 
 let pipe() =
   let input = ref "" in
