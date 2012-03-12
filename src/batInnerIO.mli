@@ -36,8 +36,8 @@
    @author Edgar Friendly
 *)
 
-type input
-type 'a output
+type -'cap input
+type (-'cap, 'a) output
 
 exception No_more_input
 (** This exception is raised when reading on an input with the [read] or
@@ -49,72 +49,80 @@ exception Input_closed
 exception Output_closed
 (** This exception is raised when reading on a closed output. *)
 
-val read : input -> char
+val read : _ input -> char
 (** Read a single char from an input or raise [No_more_input] if
   no input available. *)
 
-val read_all : input -> string
+val read_all : _ input -> string
 (** read all the contents of the input until [No_more_input] is raised. *)
 
-val pipe : unit -> input * unit output
+val pipe : unit -> [`Read] input * ([`Write], unit) output
 (** Create a pipe between an input and an ouput. Data written from
   the output can be read from the input. *)
 
-val nread : input -> int -> string
+val nread : _ input -> int -> string
 (** [nread i n] reads a string of size up to [n] from an input.
   The function will raise [No_more_input] if no input is available.
   It will raise [Invalid_argument] if [n] < 0. *)
 
-val really_nread : input -> int -> string
+val really_nread : _ input -> int -> string
 (** [really_nread i n] reads a string of exactly [n] characters
     from the input. Raises [No_more_input] if at least [n] characters are
     not available. Raises [Invalid_argument] if [n] < 0. *)
 
-val input : input -> string -> int -> int -> int
+val input : _ input -> string -> int -> int -> int
 (** [input i s p l] reads up to [l] characters from the given input, storing
   them in string [s], starting at character number [p]. It returns the actual
   number of characters read or raise [No_more_input] if no character can be
   read. It will raise [Invalid_argument] if [p] and [l] do not designate a
   valid substring of [s]. *)
 
-val really_input : input -> string -> int -> int -> int
+val really_input : _ input -> string -> int -> int -> int
 (** [really_input i s p l] reads exactly [l] characters from the given input,
   storing them in the string [s], starting at position [p]. For consistency with
   {!BatIO.input} it returns [l]. Raises [No_more_input] if at [l] characters are
   not available. Raises [Invalid_argument] if [p] and [l] do not designate a
   valid substring of [s]. *)
 
-val close_in : input -> unit
+val seek_in : [> `Seek] input -> int -> unit
+(** [seek_in inp pos] sets the current reading position to [pos]
+   for input [inp]. *)
+
+val close_in : _ input -> unit
 (** Close the input. It can no longer be read from. *)
 
-(*val auto_close_in : input -> input
+(*val auto_close_in : 'a input -> 'a input
 (** Create a new channel which will close automatically once there is nothing
     left to read.*)*)
 
-val write : 'a output -> char -> unit
+val write : (_, 'a) output -> char -> unit
 (** Write a single char to an output. *)
 
-val nwrite : 'a output -> string -> unit
+val nwrite : (_, 'a) output -> string -> unit
 (** Write a string to an output. *)
 
-val output : 'a output -> string -> int -> int -> int
+val output : (_, 'a) output -> string -> int -> int -> int
 (** [output o s p l] writes up to [l] characters from string [s], starting at
   offset [p]. It returns the number of characters written. It will raise
   [Invalid_argument] if [p] and [l] do not designate a valid substring of [s]. *)
 
-val really_output : 'a output -> string -> int -> int -> int
+val really_output : (_, 'a) output -> string -> int -> int -> int
 (** [really_output o s p l] writes exactly [l] characters from string [s] onto
   the the output, starting with the character at offset [p]. For consistency with
   {!BatIO.output} it returns [l]. Raises [Invalid_argument] if [p] and [l] do not
   designate a valid substring of [s]. *)
 
-val flush : 'a output -> unit
+val seek_out : ([> `Seek], _) output -> int -> unit
+(** [seek_out out pos] sets the current reading position to [pos]
+   for output [out]. *)
+
+val flush : (_, 'a) output -> unit
 (** Flush an output. *)
 
 val flush_all : unit -> unit
 (** Flush all outputs. *)
 
-val close_out : 'a output -> 'a
+val close_out : (_, 'a) output -> 'a
 (** Close the output and return its accumulator data.
     It can no longer be written. *)
 
@@ -122,14 +130,14 @@ val close_all : unit -> unit
 (** Close all outputs.
     Ignore errors.*)
 
-val input_string : string -> input
+val input_string : string -> [`Read] input
 (** Create an input that will read from a string. *)
 
-val output_string : unit -> string output
+val output_string : unit -> ([`Write], string) output
 (** Create an output that will write into a string in an efficient way.
   When closed, the output returns all the data written into it. *)
 
-val on_close_out : 'a output -> ('a output -> unit) -> unit
+val on_close_out : (_, 'a) output -> ((_, 'a) output -> unit) -> unit
   (**
      Register a function to be triggered just before an output is closed.
   *)
@@ -137,7 +145,7 @@ val on_close_out : 'a output -> ('a output -> unit) -> unit
 val create_in :
   read:(unit -> char) ->
   input:(string -> int -> int -> int) ->
-  close:(unit -> unit) -> input
+  close:(unit -> unit) -> [`Read] input
 (** Fully create an input by giving all the needed functions.
 
     {b Note} Do {e not} use this function for creating an input
@@ -145,11 +153,19 @@ val create_in :
     {!wrap_in}.
 *)
 
+val create_in_seekable :
+  read:(unit -> char) ->
+  input:(string -> int -> int -> int) ->
+  close:(unit -> unit) ->
+  seek:(int -> unit) -> [`Read | `Seek] input
+(** Fully create a seekable input by giving all the needed functions.
+*)
+
 val inherit_in:
   ?read:(unit -> char) ->
   ?input:(string -> int -> int -> int) ->
   ?close:(unit -> unit) ->
-  input -> input
+  _ input -> [`Read] input
 (**
    Simplified and optimized version of {!wrap_in} whenever only
    one input appears as dependency.
@@ -160,8 +176,8 @@ val wrap_in :
   read:(unit -> char) ->
   input:(string -> int -> int -> int) ->
   close:(unit -> unit) ->
-  underlying:(input list) ->
-  input
+  underlying:(_ input list) ->
+  [`Read] input
 (** Fully create an input reading from other inputs by giving all the needed functions.
 
     This function is a more general version of {!create_in}
@@ -176,7 +192,7 @@ val create_out :
   output:(string -> int -> int -> int) ->
   flush:(unit -> unit) ->
   close:(unit -> 'a) ->
-  'a output
+  ([`Write], 'a) output
 (**
     Fully create an output by giving all the needed functions.
 
@@ -188,6 +204,18 @@ val create_out :
 
     {b Note} Do {e not} use this function for creating an output which
     writes to one or more underlying outputs. Rather, use {!wrap_out}.
+*)
+
+val create_out_seekable :
+  write:(char -> unit) ->
+  output:(string -> int -> int -> int) ->
+  flush:(unit -> unit) ->
+  close:(unit -> 'a) ->
+  seek:(int -> unit) ->
+  ([`Write | `Seek], 'a) output
+(**
+   Fully create a seekable output by giving all the needed functions.
+   See [create_out].
 *)
 
 val inherit_out:
@@ -207,8 +235,8 @@ val wrap_out :
   output:(string -> int -> int -> int) ->
   flush:(unit -> unit)         ->
   close:(unit -> 'a)           ->
-  underlying:('b output list)  ->
-  'a output
+  underlying:((_, 'b) output list)  ->
+  ([`Write], 'a) output
 (**
    Fully create an output that writes to one or more underlying outputs.
 
@@ -303,38 +331,38 @@ val read_string : input -> string
 val read_line : input -> string
 (** Read a LF or CRLF terminated string. *)
 
-val write_byte : 'a output -> int -> unit
+val write_byte : (_, 'a) output -> int -> unit
 (** Write an unsigned 8-bit byte. *)
 
-val write_ui16 : 'a output -> int -> unit
+val write_ui16 : (_, 'a) output -> int -> unit
 (** Write an unsigned 16-bit word. *)
 
-val write_i16 : 'a output -> int -> unit
+val write_i16 : (_, 'a) output -> int -> unit
 (** Write a signed 16-bit word. *)
 
-val write_i32 : 'a output -> int -> unit
+val write_i32 : (_, 'a) output -> int -> unit
 (** Write a signed 32-bit integer. *)
 
-val write_real_i32 : 'a output -> int32 -> unit
+val write_real_i32 : (_, 'a) output -> int32 -> unit
 (** Write an OCaml int32. *)
 
-val write_i64 : 'a output -> int64 -> unit
+val write_i64 : (_, 'a) output -> int64 -> unit
 (** Write an OCaml int64. *)
 
-val write_double : 'a output -> float -> unit
+val write_double : (_, 'a) output -> float -> unit
 (** Write an IEEE double precision floating point value. *)
 
-val write_float : 'a output -> float -> unit
+val write_float : (_, 'a) output -> float -> unit
 (** Write an IEEE single precision floating point value. *)
 
-val write_string : 'a output -> string -> unit
+val write_string : (_, 'a) output -> string -> unit
 (** Write a string and append an null character. *)
 
-val write_line : 'a output -> string -> unit
+val write_line : (_, 'a) output -> string -> unit
 (** Write a line and append a LF (it might be converted
 	to CRLF on some systems depending on the underlying BatIO). *)
 
-external cast_output : 'a output -> unit output = "%identity"
+external cast_output : (_, 'a) output -> unit output = "%identity"
 (** You can safely transform any output to an unit output in a safe way
   by using this function. *)
 
@@ -342,7 +370,7 @@ external cast_output : 'a output -> unit output = "%identity"
    {6 For compatibility purposes}
 *)
 
-val input_channel : ?autoclose:bool -> ?cleanup:bool -> in_channel -> input
+val input_channel : ?autoclose:bool -> ?cleanup:bool -> in_channel -> [`Read] input
 (** Create an input that will read from a channel.
 
     @param autoclose If true or unspecified, the {!type: input}
@@ -354,15 +382,24 @@ val input_channel : ?autoclose:bool -> ?cleanup:bool -> in_channel -> input
     Otherwise, you will need to close the channel manually.
 *)
 
-val output_channel : ?cleanup:bool -> out_channel -> unit output
+val input_channel_seekable : ?autoclose:bool -> ?cleanup:bool -> in_channel -> [`Read | `Seek] input
+(** Create an input that reads from a channel which admits seeking.
+    See [input_channel]. *)
+
+val output_channel : ?cleanup:bool -> out_channel -> ([`Write], unit) output
 (** Create an output that will write into a channel.
 
     @param cleanup If true, the channel
     will be automatically closed when the {!type: output} is closed.
     Otherwise, you will need to close the channel manually.
 *)
+
+val output_channel_seekable : ?cleanup:bool -> out_channel -> ([`Write | `Seek], unit) output
+(** Create an output that will write into a channel and admits seeking.
+    See [output_channel].
+*)
 (*
-val to_input_channel : input -> in_channel
+val to_input_channel : _ input -> in_channel
 (** Create a channel that will read from an input.
 
     {b Note} This function is very costly and is provided
@@ -380,21 +417,21 @@ val to_output_channel: _ output -> out_channel
 *)
 (** {6 Standard inputs/outputs} *)
 
-val stdin : input
+val stdin : [`Read] input
 (** Standard input, as per Unix/Windows conventions (by default, keyboard).*)
 
-val stdout: unit output
+val stdout: ([`Write], unit) output
 (** Standard output, as per Unix/Windows conventions (by default, console).
 
     Use this output to display regular messages.*)
 
-val stderr: unit output
+val stderr: ([`Write], unit) output
 (** Standard error output, as per Unix/Windows conventions.
 
     Use this output to display warnings and error messages.
 *)
 
-val stdnull: unit output
+val stdnull: ([`Write], unit) output
 (** An output which discards everything written to it.
 
     Use this output to ignore messages.*)
@@ -404,28 +441,30 @@ val stdnull: unit output
     The following modules may be useful to create hashtables of inputs or outputs.
 *)
 
+
+
 module Input :
 sig
-  type t = input
-  val compare : input -> input -> int
+  type t = [`Read] input
+  val compare : _ input -> _ input -> int
     (**A total order on inputs*)
 
-  val hash    : input -> int
+  val hash    : _ input -> int
     (**A hash function for inputs*)
 
-  val equal : input -> input -> bool
+  val equal : _ input -> _ input -> bool
 end
 
 module Output :
 sig
-  type t = unit output
-  val compare : _ output -> _ output -> int
+  type t = ([`Write], unit) output
+  val compare : (_, _) output -> (_, _) output -> int
     (**A total order on outputs*)
 
-  val hash    : _ output -> int
+  val hash    : (_, _) output -> int
     (**A hash function for outputs*)
 
-  val equal : _ output -> _ output -> bool
+  val equal : (_, _) output -> (_, _) output -> bool
 end
 
 
