@@ -152,7 +152,7 @@ let apply_enum do_close f x =
 (** [close_at_end input e] returns an enumeration which behaves as [e]
     and has the secondary effect of closing [input] once everything has
     been read.*)
-let close_at_end do_close (input:input) e =
+let close_at_end do_close (input: _ input) e =
   BatEnum.suffix_action (fun () -> if !do_close then close_in input) e
 
 let make_enum f input =
@@ -286,6 +286,8 @@ module BigEndian = struct
 
 end
 
+let cast_input io = (io :> [`Read] input)
+
 (**
    {6 Bits API}
 *)
@@ -296,14 +298,14 @@ type 'a bc = {
 	mutable bits : int;
 }
 
-type in_bits = input bc
-type out_bits = unit output bc
+type in_bits = [`Read] input bc
+type out_bits = ([`Write], unit) output bc
 
 exception Bits_error
 
 let input_bits ch =
 	{
-		ch = ch;
+		ch = cast_input ch;
 		nbits = 0;
 		bits = 0;
 	}
