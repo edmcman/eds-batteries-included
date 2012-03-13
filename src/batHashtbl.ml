@@ -242,9 +242,9 @@
       val enum : 'a t -> (key * 'a) BatEnum.t
       val of_enum : (key * 'a) BatEnum.t -> 'a t
       val print :  ?first:string -> ?last:string -> ?sep:string ->
-	('a BatInnerIO.output -> key -> unit) ->
-	('a BatInnerIO.output -> 'b -> unit) ->
-	'a BatInnerIO.output -> 'b t -> unit
+	(('cap, 'a) BatInnerIO.outputWrite -> key -> unit) ->
+	(('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) ->
+	('cap, 'a) BatInnerIO.outputWrite -> 'b t -> unit
 
       (** Operations on {!Hashtbl} without exceptions.*)
       module Exceptionless :

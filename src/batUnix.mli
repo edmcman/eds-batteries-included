@@ -41,7 +41,7 @@ open BatConcurrent
 
 (** {6 Interfacing with the standard input/output library} *)
 
-val input_of_descr: ?autoclose:bool -> ?cleanup:bool -> file_descr -> BatInnerIO.input
+val input_of_descr: ?autoclose:bool -> ?cleanup:bool -> file_descr -> [`Read] BatInnerIO.input
 (** Create an {!type:input} reading from the given descriptor.
     The {!type: input} is initially in binary mode; use
     [set_binary_mode_in ic false] if text mode is desired.
@@ -58,7 +58,7 @@ val input_of_descr: ?autoclose:bool -> ?cleanup:bool -> file_descr -> BatInnerIO
     file descriptor yourself to ensure proper cleanup.
 *)
 
-val output_of_descr: ?cleanup:bool -> file_descr -> unit BatInnerIO.output
+val output_of_descr: ?cleanup:bool -> file_descr -> ([`Write], unit) BatInnerIO.output
   (** Create an {!type:output} writing on the given descriptor.
       The {!type:output} is initially in binary mode; use
       [set_binary_mode_out oc false] if text mode is desired.
@@ -69,7 +69,7 @@ val output_of_descr: ?cleanup:bool -> file_descr -> unit BatInnerIO.output
       file descriptor yourself to ensure proper cleanup.
 *)
 
-val descr_of_input : BatInnerIO.input -> file_descr
+val descr_of_input : _ BatInnerIO.inputRead -> file_descr
 (** Return the descriptor corresponding to an input.
 
     Not all inputs have file descriptors. This function works
@@ -79,7 +79,7 @@ val descr_of_input : BatInnerIO.input -> file_descr
     channel doesn't have a file descriptor
 *)
 
-val descr_of_output : unit BatInnerIO.output -> file_descr
+val descr_of_output : (_, unit) BatInnerIO.output -> file_descr
   (** Return the descriptor corresponding to an output.
 
       Not all inputs have file descriptors. This function works
@@ -97,7 +97,7 @@ val descr_of_output : unit BatInnerIO.output -> file_descr
 
 
 
-val open_process_in : ?autoclose: bool -> ?cleanup:bool -> string -> BatInnerIO.input
+val open_process_in : ?autoclose: bool -> ?cleanup:bool -> string -> [`Read] BatInnerIO.input
 (** High-level pipe and process management. This function
     runs the given command in parallel with the program.
     The standard output of the command is redirected to a pipe,
@@ -115,7 +115,7 @@ val open_process_in : ?autoclose: bool -> ?cleanup:bool -> string -> BatInnerIO.
     will need to close the process yourself to ensure proper cleanup.
 *)
 
-val open_process_out : ?cleanup:bool -> string -> unit BatInnerIO.output
+val open_process_out : ?cleanup:bool -> string -> ([`Write], unit) BatInnerIO.output
   (**
       Same as {!Unix.open_process_in}, but redirect the standard input of
       the command to a pipe.  Data written to the returned output
@@ -130,7 +130,7 @@ val open_process_out : ?cleanup:bool -> string -> unit BatInnerIO.output
       will need to close the process yourself to ensure proper cleanup.
 *)
 
-val open_process : ?autoclose:bool -> ?cleanup:bool -> string -> BatInnerIO.input * unit BatInnerIO.output
+val open_process : ?autoclose:bool -> ?cleanup:bool -> string -> [`Read] BatInnerIO.input * ([`Write], unit) BatInnerIO.output
   (**
       Same as {!Unix.open_process_out}, but redirects both the
       standard input and standard output of the command to pipes
@@ -154,7 +154,7 @@ val open_process : ?autoclose:bool -> ?cleanup:bool -> string -> BatInnerIO.inpu
 
 
 val open_process_full :
-  ?autoclose:bool -> ?cleanup:bool -> string -> string array -> BatInnerIO.input * unit BatInnerIO.output * BatInnerIO.input
+  ?autoclose:bool -> ?cleanup:bool -> string -> string array -> [`Read] BatInnerIO.input * ([`Write], unit) BatInnerIO.output * [`Read] BatInnerIO.input
   (** Similar to {!Unix.open_process}, but the second argument
       specifies the environment passed to the command.  The result is
       a triple of {!type:input}/{!type:output} connected respectively
@@ -173,7 +173,7 @@ val open_process_full :
       the process yourself to ensure proper cleanup.
   *)
 
-val close_process_in : BatInnerIO.input -> process_status
+val close_process_in : _ BatInnerIO.inputRead -> process_status
   (** Close {!type:input} opened by {!Unix.open_process_in},
       wait for the associated command to terminate,
       and return its termination status.
@@ -182,7 +182,7 @@ val close_process_in : BatInnerIO.input -> process_status
       is not an {!type:input} opened by {!Unix.open_process_in}.
   *)
 
-val close_process_out : unit BatInnerIO.output -> process_status
+val close_process_out : (_, unit) BatInnerIO.outputWrite -> process_status
   (** Close {!type:output} opened by {!Unix.open_process_out},
       wait for the associated command to terminate,
       and return its termination status.
@@ -191,7 +191,7 @@ val close_process_out : unit BatInnerIO.output -> process_status
       is not an {!type:output} opened by {!Unix.open_process_out}.
 *)
 
-val close_process : BatInnerIO.input * unit BatInnerIO.output -> process_status
+val close_process : _ BatInnerIO.inputRead * (_, unit) BatInnerIO.outputWrite -> process_status
   (** Close {!type:input}/{!type:output} opened by {!Unix.open_process},
       wait for the associated command to terminate,
       and return its termination status.
@@ -201,7 +201,7 @@ val close_process : BatInnerIO.input * unit BatInnerIO.output -> process_status
   *)
 
 val close_process_full :
-  BatInnerIO.input * unit BatInnerIO.output * BatInnerIO.input -> process_status
+  _ BatInnerIO.inputRead * (_, unit) BatInnerIO.outputWrite * _ BatInnerIO.inputRead -> process_status
   (** Close i/o opened by {!Unix.open_process_full},
       wait for the associated command to terminate,
       and return its termination status.
@@ -213,7 +213,7 @@ val close_process_full :
 (** {6 High-level network connection functions} *)
 
 
-val open_connection : ?autoclose:bool -> sockaddr -> BatInnerIO.input * unit BatInnerIO.output
+val open_connection : ?autoclose:bool -> sockaddr -> [`Read] BatInnerIO.input * ([`Write], unit) BatInnerIO.output
   (** Connect to a server at the given address.
       Return a pair of input/output connected to the server. The
       connection is closed whenever either the input or the output
@@ -229,7 +229,7 @@ val open_connection : ?autoclose:bool -> sockaddr -> BatInnerIO.input * unit Bat
       locks), you probably want [autoclose] to be [true].
   *)
 
-val shutdown_connection : BatInnerIO.input -> unit
+val shutdown_connection : _ BatInnerIO.inputRead -> unit
   (**
       ``Shut down'' a connection established with {!Unix.open_connection};
       that is, transmit an end-of-file condition to the server reading
@@ -239,7 +239,7 @@ val shutdown_connection : BatInnerIO.input -> unit
       Use regular function {!BatIO.close_in} for closing connections.
 *)
 
-val establish_server : ?autoclose:bool -> ?cleanup:bool -> (BatInnerIO.input -> unit BatInnerIO.output -> unit) -> sockaddr -> unit
+val establish_server : ?autoclose:bool -> ?cleanup:bool -> ([`Read] BatInnerIO.input -> ([`Write], unit) BatInnerIO.output -> unit) -> sockaddr -> unit
   (** Establish a server on the given address.
 
       [establish_server f addr] establishes a server on address
@@ -291,15 +291,15 @@ val lock: BatConcurrent.lock ref
 
 (**{6 Obsolete stuff}*)
 
-val in_channel_of_descr: file_descr -> BatInnerIO.input
+val in_channel_of_descr: file_descr -> [`Read] BatInnerIO.input
 (** @deprecated use {!input_of_descr}*)
 
-val out_channel_of_descr: file_descr -> unit BatInnerIO.output
+val out_channel_of_descr: file_descr -> ([`Write], unit) BatInnerIO.output
 (** @deprecated use {!output_of_descr}. *)
 
-val descr_of_in_channel : BatInnerIO.input -> file_descr
+val descr_of_in_channel : _ BatInnerIO.inputRead -> file_descr
 (** @deprecated use {!descr_of_input}. *)
 
-val descr_of_out_channel : unit BatInnerIO.output -> file_descr
+val descr_of_out_channel : (_, unit) BatInnerIO.outputWrite -> file_descr
 (** @deprecated use {!descr_of_output}. *)
 

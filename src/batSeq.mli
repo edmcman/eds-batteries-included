@@ -237,7 +237,7 @@ val combine : 'a t -> 'b t -> ('a * 'b) t
 
 (** {6 Printing} *)
 
-val print : ?first:string -> ?last:string -> ?sep:string -> ('a BatInnerIO.output -> 'b -> unit) ->  'a BatInnerIO.output -> 'b t -> unit
+val print : ?first:string -> ?last:string -> ?sep:string -> (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) ->  ('cap, 'a) BatInnerIO.outputWrite -> 'b t -> unit
   (**Print the contents of a sequence*)
 
 val t_printer : 'a BatValuePrinter.t -> 'a t BatValuePrinter.t

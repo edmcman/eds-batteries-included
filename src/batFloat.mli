@@ -334,7 +334,7 @@ external modf : float -> float * float = "caml_modf_float"
     (** {6 Boilerplate code}*)
 
     (** {7 Printing}*)
-    val print: 'a BatInnerIO.output -> t -> unit
+    val print: (_, 'a) BatInnerIO.output -> t -> unit
     val t_printer : t BatValuePrinter.t
 
 
@@ -541,6 +541,6 @@ module Safe_float :
     (** {6 Boilerplate code}*)
 
     (** {7 Printing}*)
-    val print: 'a BatInnerIO.output -> t -> unit
+    val print: (_, 'a) BatInnerIO.output -> t -> unit
     val t_printer : t BatValuePrinter.t
 end

@@ -83,7 +83,7 @@ let fatalf ?fp fmt =
     !prefix
 
 module type S = sig
-  val out: 'a output
+  val out: ([`Write], 'a) output
   val prefix: string
   val flags: flag list
 end
@@ -115,9 +115,9 @@ end
 
 type 'a logger = {
   print : ?fp:string -> string -> unit;
-  printf : 'b. ?fp:string -> ('b, 'a output, unit) Pervasives.format -> 'b;
+  printf : 'b. ?fp:string -> ('b, ([`Write], 'a) output, unit) Pervasives.format -> 'b;
   fatal: ?fp:string -> string -> 'a;
-  fatalf: 'b. ?fp:string -> ('b, 'a output, unit) Pervasives.format -> 'b;
+  fatalf: 'b. ?fp:string -> ('b, ([`Write], 'a) output, unit) Pervasives.format -> 'b;
 }
 
 let make_logger out prefix flags =

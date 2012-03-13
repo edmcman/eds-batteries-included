@@ -37,7 +37,7 @@
 *)
 open BatIO
 
-val channel : input -> int -> Digest.t
+val channel : _ inputRead -> int -> Digest.t
 (** If [len] is nonnegative, [Digest.channel ic len] reads [len]
    characters from channel [ic] and returns their digest, or raises
    [End_of_file] if end-of-file is reached before [len] characters
@@ -51,10 +51,10 @@ val channel : input -> int -> Digest.t
 *)
 
 
-val output : 'a output -> Digest.t -> unit
+val output : (_, 'a) output -> Digest.t -> unit
 (** Write a digest on the given output. *)
 
-val input : input -> Digest.t
+val input : _ input -> Digest.t
 (** Read a digest from the given input. *)
 
 (** {6 Boilerplate code}*)

@@ -39,6 +39,12 @@
 type -'cap input
 type (-'cap, 'a) output
 
+type 'cap inputRead = ([> `Read] as 'cap) input
+(** The type of [input] that has at least the [Read] capability. *)
+
+type ('cap, 'a) outputWrite = ([> `Write] as 'cap, 'a) output
+(** The type of [output] that has at least the [Write] capability. *)
+
 exception No_more_input
 (** This exception is raised when reading on an input with the [read] or
   [nread] functions while there is no available token to read. *)
@@ -137,7 +143,7 @@ val output_string : unit -> ([`Write], string) output
 (** Create an output that will write into a string in an efficient way.
   When closed, the output returns all the data written into it. *)
 
-val on_close_out : (_, 'a) output -> ((_, 'a) output -> unit) -> unit
+val on_close_out : ('cap, 'a) output -> (('cap, 'a) output -> unit) -> unit
   (**
      Register a function to be triggered just before an output is closed.
   *)
@@ -223,7 +229,7 @@ val inherit_out:
   ?output:(string -> int -> int -> int) ->
   ?flush:(unit -> unit) ->
   ?close:(unit -> unit) ->
-  _ output -> unit output
+  (_, _) output -> ([`Write], unit) output
 (**
    Simplified and optimized version of {!wrap_out} whenever only
    one output appears as dependency.
@@ -297,38 +303,38 @@ val default_buffer_size : int
 exception Overflow of string
 (** Exception raised when a read or write operation cannot be completed. *)
 
-val read_byte : input -> int
+val read_byte : _ input -> int
 (** Read an unsigned 8-bit integer. *)
 
-val read_signed_byte : input -> int
+val read_signed_byte : _ input -> int
 (** Read an signed 8-bit integer. *)
 
-val read_ui16 : input -> int
+val read_ui16 : _ input -> int
 (** Read an unsigned 16-bit word. *)
 
-val read_i16 : input -> int
+val read_i16 : _ input -> int
 (** Read a signed 16-bit word. *)
 
-val read_i32 : input -> int
+val read_i32 : _ input -> int
 (** Read a signed 32-bit integer. Raise [Overflow] if the
   read integer cannot be represented as a Caml 31-bit integer. *)
 
-val read_real_i32 : input -> int32
+val read_real_i32 : _ input -> int32
 (** Read a signed 32-bit integer as an OCaml int32. *)
 
-val read_i64 : input -> int64
+val read_i64 : _ input -> int64
 (** Read a signed 64-bit integer as an OCaml int64. *)
 
-val read_float : input -> float
+val read_float : _ input -> float
 (** Read an IEEE single precision floating point value. *)
 
-val read_double : input -> float
+val read_double : _ input -> float
 (** Read an IEEE double precision floating point value. *)
 
-val read_string : input -> string
+val read_string : _ input -> string
 (** Read a null-terminated string. *)
 
-val read_line : input -> string
+val read_line : _ input -> string
 (** Read a LF or CRLF terminated string. *)
 
 val write_byte : (_, 'a) output -> int -> unit
@@ -362,7 +368,7 @@ val write_line : (_, 'a) output -> string -> unit
 (** Write a line and append a LF (it might be converted
 	to CRLF on some systems depending on the underlying BatIO). *)
 
-external cast_output : (_, 'a) output -> unit output = "%identity"
+external cast_output : (_, 'a) output -> ([`Write], unit) output = "%identity"
 (** You can safely transform any output to an unit output in a safe way
   by using this function. *)
 
@@ -479,8 +485,8 @@ external noop        : unit      -> unit        = "%ignore"
    {7 Optimized access to fields}
 *)
 
-val get_output : _ output -> (string -> int -> int -> int)
-val get_flush  : _ output -> (unit -> unit)
+val get_output : (_, _) output -> (string -> int -> int -> int)
+val get_flush  : (_, _) output -> (unit -> unit)
 
 val lock : BatConcurrent.lock ref
 (**
@@ -492,7 +498,7 @@ val lock : BatConcurrent.lock ref
    {7 Facilities for debugging}
 *)
 
-val get_output_id : _ output -> int
-val get_input_id  : input -> int
+val get_output_id : (_, _) output -> int
+val get_input_id  : _ input -> int
 
 (**/**)

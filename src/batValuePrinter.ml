@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *)
 
-type 'a t = bool -> unit BatInnerIO.output -> 'a -> unit
+type 'a t = bool -> ([`Write], unit) BatInnerIO.output -> 'a -> unit
 
 let print_tuple0 _ out () =
   BatInnerIO.nwrite out "()"

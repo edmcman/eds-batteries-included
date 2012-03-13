@@ -24,7 +24,7 @@ val make : int -> char -> t
 
 val create : int -> t
 
-val of_input : BatIO.input -> t
+val of_input : [> `Read] BatIO.input -> t
 
 val substring : string -> int -> int -> t
   (** [substring s o l] returns a substring with base-string [s], offset
@@ -291,5 +291,5 @@ val split_on_dot : t -> t list
 val split_on_comma : t -> t list
 val split_on_slash : t -> t list
 
-val print : 'a BatIO.output -> t -> unit
+val print : ([> `Write], 'a) BatIO.output -> t -> unit
 (** [print oc ss] prints [ss] to the output channel [oc] *)

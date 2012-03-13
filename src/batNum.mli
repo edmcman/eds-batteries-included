@@ -159,7 +159,7 @@ val float_of_num : num -> float
 (** {6 Boilerplate code}*)
 
 (** {7 Printing}*)
-val print: 'a BatInnerIO.output -> t -> unit
+val print: ([> `Write], 'a) BatInnerIO.output -> t -> unit
 
 (** {6 Submodules grouping all infix operators} *)
 

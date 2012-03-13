@@ -24,7 +24,7 @@ include BatInnerIO
 external noop :          unit -> unit = "%ignore"
 external default_close : unit -> unit = "%ignore"
 
-type ('a, 'b) printer = 'b output -> 'a -> unit
+type ('a, 'b, 'cap) printer = ('cap, 'b) output -> 'a -> unit
 
 let pos_in i =
   let p = ref 0 in

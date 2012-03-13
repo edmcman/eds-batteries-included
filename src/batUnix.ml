@@ -46,13 +46,13 @@
     BatConcurrent.sync !lock (Wrapped_in.add wrapped_in k) v
 
   let input_get k =
-    BatConcurrent.sync !lock (Wrapped_in.find wrapped_in) k
+    BatConcurrent.sync !lock (Wrapped_in.find wrapped_in) (k :> [`Read] input)
 
   let output_add k v =
     BatConcurrent.sync !lock (Wrapped_out.add wrapped_out k) v
 
   let output_get k =
-    BatConcurrent.sync !lock (Wrapped_out.find wrapped_out) k
+    BatConcurrent.sync !lock (Wrapped_out.find wrapped_out) (k :> ([`Write], unit) output)
 
   let wrap_in ?autoclose ?cleanup cin =
     let input = BatInnerIO.input_channel ?autoclose ?cleanup cin in

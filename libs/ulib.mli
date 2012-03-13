@@ -665,7 +665,7 @@ module Text : sig
         allows the module [Rope] to be passed as argument to the functors
         {!Set.Make} and {!Map.Make}. *)
 
-  val print : 'a BatInnerIO.output -> t -> unit
+  val print : (_, 'a) BatInnerIO.output -> t -> unit
     (** Prints a rope to the given out_channel *)
 
 end

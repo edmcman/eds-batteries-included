@@ -222,4 +222,4 @@ val gcd_big_int : big_int -> big_int -> big_int
 
     (** {7 Printing}*)
 
-    val print : 'a BatIO.output -> t -> unit
+    val print : (_, 'a) BatIO.output -> t -> unit

@@ -122,7 +122,7 @@ let out_chan_mode ?mode binary =
 
 let open_out ?mode ?(perm=0o666) name =
 (*  Printf.eprintf "Opening out\n%!";*)
-  output_channel ~cleanup:true (open_out_gen (out_chan_mode ?mode true) perm name)
+  output_channel_seekable ~cleanup:true (open_out_gen (out_chan_mode ?mode true) perm name)
 
 open BatBigarray
 
@@ -134,7 +134,7 @@ let open_in ?mode ?(perm=default_permission) name =
 	  let array= Array1.map_file desc char c_layout (*shared*)false (-1) in
 	  let pos  = ref 0
 	  and len  = Array1.dim array                                     in
-	    create_in
+	  create_in_seekable
 	      ~read:(fun () ->
 		       if !pos >= len then raise No_more_input
 		       else Array1.get array (BatRef.post_incr pos))
@@ -148,9 +148,11 @@ let open_in ?mode ?(perm=default_permission) name =
 			  pos := !pos + n;
 			  n
 		     )
+              ~seek:(fun n -> if n < 0 || n >= len then invalid_arg "IO.seek_in";
+                              pos := n)
 	      ~close:(fun () -> Unix.close desc)
       | _ ->
-	  input_channel ~cleanup:true ~autoclose:false (open_in_gen unix_mode perm name)
+	  input_channel_seekable ~cleanup:true ~autoclose:false (open_in_gen unix_mode perm name)
 
 
 let with_do opener closer x f =
@@ -174,10 +176,10 @@ type open_temporary_out_flag =
   [ open_out_flag
   | `delete_on_exit (**Should the file be deleted when program ends?*) ]
 
-let open_temporary_out ?mode ?(prefix="ocaml") ?(suffix="tmp") () : (_ output * string) =
+let open_temporary_out ?mode ?(prefix="ocaml") ?(suffix="tmp") () : ((_, _) output * string) =
   let chan_mode = out_chan_mode ?mode true in
   let (name, cout) = Filename.open_temp_file ~mode:chan_mode prefix suffix in
-  let out          = output_channel ~cleanup:true cout   in
+  let out          = output_channel_seekable ~cleanup:true cout   in
     (match mode with
       | Some l when List.mem `delete_on_exit l ->
 	  Pervasives.at_exit (fun () ->

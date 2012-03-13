@@ -63,7 +63,7 @@ sig
   val map_right : (('a -> 'b) -> ('a, 'm) fg -> ('b, 'm) fg, 'b, 'm) wrap
   val append : (('a, 'm) fg -> ('a, 'm) fg -> ('a, 'm) fg, 'a, 'm) wrap
   val reverse : (('a, 'm) fg -> ('a, 'm) fg, 'a, 'm) wrap
-  val print : ?first:string -> ?last:string -> ?sep:string -> ('a BatInnerIO.output -> 'b -> unit) -> 'a BatInnerIO.output -> ('b, _) fg -> unit
+  val print : ?first:string -> ?last:string -> ?sep:string -> (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) -> ('cap, 'a) BatInnerIO.outputWrite -> ('b, _) fg -> unit
   val t_printer : 'a BatValuePrinter.t -> ('a, _) fg BatValuePrinter.t
 
 end

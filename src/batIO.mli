@@ -104,9 +104,15 @@ open BatInnerIO
 type 'cap input = 'cap BatInnerIO.input
 (** The abstract input type. *)
 
+type 'cap inputRead = ([> `Read] as 'cap) input
+(** The type of [input] that has at least the [Read] capability. *)
+
 type ('cap, 'a) output = ('cap, 'a) BatInnerIO.output
 (** The abstract output type, ['a] is the accumulator data, it is returned
 	when the [close_out] function is called. *)
+
+type ('cap, 'a) outputWrite = ([> `Write] as 'cap, 'a) output
+(** The type of [output] that has at least the [Write] capability. *)
 
 type ('a, 'b, 'cap) printer = ('cap, 'b) output -> 'a -> unit
 (** The type of a printing function to print a ['a] to an output that
@@ -919,7 +925,7 @@ val synchronize_in : ?lock:BatConcurrent.lock -> _ input  -> [`Read] input
    of pipes.
 *)
 
-val synchronize_out: ?lock:BatConcurrent.lock -> _ output -> ([`Write], unit) output
+val synchronize_out: ?lock:BatConcurrent.lock -> (_, _) output -> ([`Write], unit) output
 (**[synchronize_out out] produces a new {!type: output} which writes to [output]
    in a thread-safe way. In other words, a lock prevents two distinct threads
    from writing to that output simultaneously, something which would potentially
@@ -958,12 +964,12 @@ val lock_factory: (unit -> BatConcurrent.lock) ref
      if you're using a version of Batteries compiled in threaded mode,
      this uses {!BatMutex}.  *)
 
-val to_string : (string output -> 'a -> unit) -> 'a -> string
+val to_string : ((_, string) output -> 'a -> unit) -> 'a -> string
 
-val string_of_t_printer : (bool -> unit BatInnerIO.output -> 'a -> unit) -> 'a -> string
+val string_of_t_printer : (bool -> ([`Write], unit) BatInnerIO.output -> 'a -> unit) -> 'a -> string
 (** [string_of_t_printer printer elt] prints the element into the output string *)
 
-val to_format: ('a BatInnerIO.output -> 'b -> unit) -> Format.formatter -> 'b -> unit
+val to_format: ((_, 'a) BatInnerIO.output -> 'b -> unit) -> Format.formatter -> 'b -> unit
 
 (**/**)
 val comb : ((_, 'a) output * (_, 'a) output) -> ([`Write], 'a) output
@@ -973,5 +979,5 @@ val comb : ((_, 'a) output * (_, 'a) output) -> ([`Write], 'a) output
    {6 Debugging facilities}
 *)
 
-val get_output_id : _ output -> int
-val get_input_id  : input -> int
+val get_output_id : (_, _) output -> int
+val get_input_id  : _ input -> int

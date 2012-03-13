@@ -47,4 +47,4 @@ val compare : t -> t -> int
 (** {6 Boilerplate code}*)
 
 (** {7 Printing}*)
-val print: 'a BatInnerIO.output -> unit -> unit
+val print: ([> `Write], 'a) BatInnerIO.output -> unit -> unit

@@ -394,8 +394,8 @@ sig
   val backwards: t -> elt BatEnum.t
   val of_enum: elt BatEnum.t -> t
   val print :  ?first:string -> ?last:string -> ?sep:string ->
-    ('a BatInnerIO.output -> elt -> unit) ->
-    'a BatInnerIO.output -> t -> unit
+    (('cap, 'a) BatInnerIO.outputWrite -> elt -> unit) ->
+    ('cap, 'a) BatInnerIO.outputWrite -> t -> unit
   (** Operations on {!Set} without exceptions.*)
   module Exceptionless : sig
     val min_elt: t -> elt option

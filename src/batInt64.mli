@@ -250,8 +250,8 @@ val operations : t BatNumber.numeric
 (** {6 Boilerplate code}*)
 
 (** {7 Printing}*)
-val print: 'a BatInnerIO.output -> t -> unit
+val print: ([> `Write], 'a) BatInnerIO.output -> t -> unit
 (** prints as decimal string *)
-val xprint: 'a BatInnerIO.output -> t -> unit
+val xprint: ([> `Write], 'a) BatInnerIO.output -> t -> unit
 (** prints as hex string *)
 val t_printer : t BatValuePrinter.t

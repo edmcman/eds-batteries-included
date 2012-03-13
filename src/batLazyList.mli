@@ -548,7 +548,7 @@ end
 
 (** {7 Printing}*)
 
-val print : ?first:string -> ?last:string -> ?sep:string ->('a BatInnerIO.output -> 'b -> unit) ->  'a BatInnerIO.output -> 'b t -> unit
+val print : ?first:string -> ?last:string -> ?sep:string ->(('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) ->  ('cap, 'a) BatInnerIO.outputWrite -> 'b t -> unit
 
 
 (** {6 Override modules}*)

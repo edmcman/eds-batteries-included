@@ -257,7 +257,7 @@ val insert : 'a array -> 'a -> int -> 'a array
 
 (** {6 Boilerplate code}*)
 
-val print : ?first:string -> ?last:string -> ?sep:string -> ('a BatIO.output -> 'b -> unit) ->  'a BatIO.output -> 'b t -> unit
+val print : ?first:string -> ?last:string -> ?sep:string -> (('cap, 'a) BatIO.output -> 'b -> unit) -> ('cap, 'a) BatIO.output -> 'b t -> unit
 (** Print the contents of an array, with [~first] preceeding the first
     item (default: "[|"), [~last] following the last item (default:
     "|]") and [~sep] separating items (default: "; ").  A printing
@@ -472,7 +472,7 @@ sig
 
 (** {6 Boilerplate code}*)
 
-  val print : ?first:string -> ?last:string -> ?sep:string -> ('a BatIO.output -> 'b -> unit) ->  'a BatIO.output -> ('b, [>`Read]) t -> unit
+  val print : ?first:string -> ?last:string -> ?sep:string -> (('cap, 'a) BatIO.output -> 'b -> unit) ->  ('cap, 'a) BatIO.output -> ('b, [>`Read]) t -> unit
 
   val compare : 'a BatOrd.comp -> ('a, [> `Read]) t BatOrd.comp
   val ord : 'a BatOrd.ord -> ('a, [> `Read]) t BatOrd.ord

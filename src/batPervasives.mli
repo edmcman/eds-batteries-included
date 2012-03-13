@@ -102,7 +102,7 @@ val dump : 'a -> string
     a faulty C binding or crazy uses of [Obj.set_tag].
 *)
 
-val print_any : 'b BatIO.output -> 'a -> unit
+val print_any : (_, 'b) BatIO.outputWrite -> 'a -> unit
 (** Attempt to print a value to an output.
 
     Uses [dump] to convert the value to a string and prints that
@@ -124,22 +124,22 @@ val ( @ ) : 'a list -> 'a list -> 'a list
     More operations may be found in modules {!BatIO} and {!File}.
 *)
 
-val stdin : input
+val stdin : [`Read] input
 (** Standard input, as per Unix/Windows conventions (by default, keyboard).
 
     Use this input to read what the user is writing on the keyboard.*)
 
-val stdout: unit output
+val stdout: ([`Write], unit) output
 (** Standard output, as per Unix/Windows conventions (by default, console).
 
     Use this output to display regular messages.*)
 
-val stderr: unit output
+val stderr: ([`Write], unit) output
 (** Standard error output, as per Unix/Windows conventions.
 
     Use this output to display warnings and error messages.*)
 
-val stdnull: unit output
+val stdnull: ([`Write], unit) output
 (** An output which discards everything written to it.
 
     Use this output to ignore messages.*)
@@ -160,13 +160,13 @@ val flush_all : unit -> unit
 val print_bool : bool -> unit
 (** Print a boolean on standard output. *)
 
-val print_guess : 'a BatIO.output -> 'b -> unit
+val print_guess : (_, 'a) BatIO.outputWrite -> 'b -> unit
   (** Attempt to print the representation of a runtime value on the
       standard output.  See remarks for {!dump}. This function is
       useful mostly for debugging. As a general rule, it should not be
       used in production code.*)
 
-val print_all : input -> unit
+val print_all : _ inputRead -> unit
   (** Print the contents of an input to the standard output.*)
 
 (** {7 Output functions on standard error} *)
@@ -179,7 +179,7 @@ val prerr_guess : 'a -> unit
       error output.  See remarks for {!dump}. This function is
       useful mostly for debugging.*)
 
-val prerr_all : input -> unit
+val prerr_all : _ inputRead -> unit
   (** Print the contents of an input to the error output.*)
 
 (** {7 General output functions} *)
@@ -189,7 +189,7 @@ val output_file : filename:string -> text:string -> unit
 
 val open_out : ?mode:(BatFile.open_out_flag list) ->
                ?perm:BatFile.permission           ->
-  string -> unit BatIO.output
+  string -> ([`Write | `Seek], unit) BatIO.output
   (** Open the named file for writing, and return a new output channel
       on that file. You will need to close the file once you have
       finished using it.
@@ -209,14 +209,14 @@ val open_out : ?mode:(BatFile.open_out_flag list) ->
 
       @raise Sys_error if the file could not be opened. *)
 
-val open_out_bin : string -> unit BatIO.output
+val open_out_bin : string -> ([`Write | `Seek], unit) BatIO.output
   (** Same as {!open_out}, but the file is opened in binary mode, so
       that no translation takes place during writes. On operating
       systems that do not distinguish between text mode and binary
       mode, this function behaves like {!open_out} without any
       [mode] or [perm]. *)
 
-val open_out_gen : open_flag list -> int -> string -> unit BatIO.output
+val open_out_gen : open_flag list -> int -> string -> ([`Write | `Seek], unit) BatIO.output
   (**
      [open_out_gen mode perm filename] opens the named file for writing,
      as described above. The extra argument [mode]
@@ -225,7 +225,7 @@ val open_out_gen : open_flag list -> int -> string -> unit BatIO.output
 
      @deprecated Use {!open_out instead}*)
 
-val flush : unit BatIO.output -> unit
+val flush : (_, unit) BatIO.output -> unit
   (** Flush the buffer associated with the given output, performing
       all pending writes on that channel. Interactive programs must be
       careful about flushing standard output and standard error at the
@@ -233,27 +233,27 @@ val flush : unit BatIO.output -> unit
 
 
 
-val output_char : unit BatIO.output -> char -> unit
+val output_char : (_, unit) BatIO.outputWrite -> char -> unit
 (** Write the character on the given output channel. *)
 
-val output_string : unit BatIO.output -> string -> unit
+val output_string : (_, unit) BatIO.outputWrite -> string -> unit
 (** Write the string on the given output channel. *)
 
-val output_text : unit BatIO.output -> Ulib.Text.t -> unit
+val output_text : (_, unit) BatIO.outputWrite -> Ulib.Text.t -> unit
 (** Write the text on the given output channel. *)
 
-val output : unit BatIO.output -> string -> int -> int -> unit
+val output : (_, unit) BatIO.outputWrite -> string -> int -> int -> unit
 (** [output oc buf pos len] writes [len] characters from string [buf],
    starting at offset [pos], to the given output channel [oc].
    @raise Invalid_argument if [pos] and [len] do not
    designate a valid substring of [buf]. *)
 
-val output_byte : unit BatIO.output -> int -> unit
+val output_byte : (_, unit) BatIO.outputWrite -> int -> unit
 (** Write one 8-bit integer (as the single character with that code)
    on the given output channel. The given integer is taken modulo
    256. *)
 
-val output_binary_int : unit BatIO.output -> int -> unit
+val output_binary_int : (_, unit) BatIO.outputWrite -> int -> unit
   (** Write one integer in binary format (4 bytes, big-endian)
       on the given output channel.
       The given integer is taken modulo 2{^32}.
@@ -261,14 +261,14 @@ val output_binary_int : unit BatIO.output -> int -> unit
       {!Pervasives.input_binary_int} function. The format is compatible across
       all machines for a given version of Objective Caml. *)
 
-val output_binary_float : unit BatIO.output -> float -> unit
+val output_binary_float : (_, unit) BatIO.outputWrite -> float -> unit
   (** Write one float in binary format (8 bytes, IEEE 754 double format)
       on the given output channel.
       The only reliable way to read it back is through the
       {!Pervasives.input_binary_float} function. The format is compatible across
       all machines for a given version of Objective Caml. *)
 
-val output_value : unit BatIO.output -> 'a -> unit
+val output_value : (_, unit) BatIO.outputWrite -> 'a -> unit
   (** Write the representation of a structured value of any type
       to a channel. Circularities and sharing inside the value
       are detected and preserved. The object can be read back,
@@ -277,7 +277,7 @@ val output_value : unit BatIO.output -> 'a -> unit
       to {!Marshal.output} with an empty list of flags. *)
 
 
-val close_out : unit BatIO.output -> unit
+val close_out : (_, unit) BatIO.output -> unit
   (** Close the given channel, flushing all buffered write operations.
       Output functions raise a [Sys_error] exception when they are
       applied to a closed output channel, except [close_out] and [flush],
@@ -285,7 +285,7 @@ val close_out : unit BatIO.output -> unit
       @raise Sys_error if the operating
       system signals an error when flushing or closing. *)
 
-val close_out_noerr : unit BatIO.output -> unit
+val close_out_noerr : (_, unit) BatIO.output -> unit
   (** Same as [close_out], but ignore all errors. *)
 
 (** {7 General input functions} *)
@@ -295,7 +295,7 @@ val input_file : ?bin:bool -> string -> string
 
 val open_in : ?mode:(BatFile.open_in_flag list) ->
   ?perm:BatFile.permission ->
-  string -> BatIO.input
+  string -> [`Read | `Seek] BatIO.input
 (** Open the named file for reading. You will need to close the file once you have
     finished using it.
 
@@ -314,13 +314,13 @@ val open_in : ?mode:(BatFile.open_in_flag list) ->
     @raise Sys_error if the file could not be opened. *)
 
 
-val open_in_bin : string -> BatIO.input
+val open_in_bin : string -> [`Read | `Seek] BatIO.input
 (** Same as {!Pervasives.open_in}, but the file is opened in binary mode,
    so that no translation takes place during reads. On operating
    systems that do not distinguish between text mode and binary
    mode, this function behaves like {!Pervasives.open_in}. *)
 
-val open_in_gen : open_flag list -> int -> string -> BatIO.input
+val open_in_gen : open_flag list -> int -> string -> [`Read | `Seek] BatIO.input
 (** [open_in mode perm filename] opens the named file for reading,
     as described above. The extra arguments [mode] and [perm]
     specify the opening mode and file permissions.
@@ -329,18 +329,18 @@ val open_in_gen : open_flag list -> int -> string -> BatIO.input
 
     @deprecated Use {!open_in instead}*)
 
-val input_char : BatIO.input -> char
+val input_char : _ BatIO.inputRead -> char
 (** Read one character from the given input channel.
    @raise End_of_file if there are no more characters to read. *)
 
-val input_line : BatIO.input -> string
+val input_line : _ BatIO.inputRead -> string
 (** Read characters from the given input channel, until a
    newline character is encountered. Return the string of
    all characters read, without the newline character at the end.
    @raise End_of_file if the end of the file is reached
    at the beginning of line. *)
 
-val input : BatIO.input -> string -> int -> int -> int
+val input : _ BatIO.inputRead -> string -> int -> int -> int
 (** [input ic buf pos len] reads up to [len] characters from
    the given channel [ic], storing them in string [buf], starting at
    character number [pos].
@@ -357,7 +357,7 @@ val input : BatIO.input -> string -> int -> int -> int
    @raise Invalid_argument if [pos] and [len]
    do not designate a valid substring of [buf]. *)
 
-val really_input : BatIO.input -> string -> int -> int -> unit
+val really_input : _ BatIO.inputRead -> string -> int -> int -> unit
 (** [really_input ic buf pos len] reads [len] characters from channel [ic],
     storing them in string [buf], starting at character number [pos].
     @raise End_of_file if the end of file is reached before [len]
@@ -365,31 +365,31 @@ val really_input : BatIO.input -> string -> int -> int -> unit
     @raise Invalid_argument if
     [pos] and [len] do not designate a valid substring of [buf]. *)
 
-val input_byte : BatIO.input -> int
+val input_byte : _ BatIO.inputRead -> int
 (** Same as {!Pervasives.input_char}, but return the 8-bit integer representing
     the character.
     @raise End_of_file if an end of file was reached. *)
 
-val input_binary_int : BatIO.input -> int
+val input_binary_int : _ BatIO.inputRead -> int
 (** Read an integer encoded in binary format (4 bytes, big-endian)
     from the given input channel. See {!Pervasives.output_binary_int}.
     @raise End_of_file if an end of file was reached while reading the
     integer. *)
 
-val input_binary_float : BatIO.input -> float
+val input_binary_float : _ BatIO.inputRead -> float
 (** Read a float encoded in binary format (8 bytes, IEEE 754 double format)
     from the given input channel. See {!Pervasives.output_binary_float}.
     @raise End_of_file if an end of file was reached while reading the
     float. *)
 
-val input_value : BatIO.input -> 'a
+val input_value : _ BatIO.inputRead -> 'a
 (** Read the representation of a structured value, as produced
     by {!output_value}, and return the corresponding value.
     This function is identical to {!Marshal.input};
     see the description of module {!Marshal} for more information,
     in particular concerning the lack of type safety. *)
 
-val close_in : BatIO.input -> unit
+val close_in : _ BatIO.input -> unit
   (** Close the given channel.  Input functions raise a [Sys_error]
       exception when they are applied to a closed input channel,
       except [close_in], which does nothing when applied to an already
@@ -397,7 +397,7 @@ val close_in : BatIO.input -> unit
       @raise Sys_error if
       the operating system signals an error. *)
 
-val close_in_noerr : BatIO.input -> unit
+val close_in_noerr : _ BatIO.input -> unit
 (** Same as [close_in], but ignore all errors. *)
 
 
@@ -835,7 +835,7 @@ val ( --- ) : int -> int -> int BatEnum.t
 val ( --~ ) : char -> char -> char BatEnum.t
 (** As ( -- ), but for characters.*)
 
-val print :  ?first:string -> ?last:string -> ?sep:string -> ('a BatInnerIO.output -> 'b -> unit) -> 'a BatInnerIO.output -> 'b BatEnum.t -> unit
+val print :  ?first:string -> ?last:string -> ?sep:string -> (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) -> ('cap, 'a) BatInnerIO.outputWrite -> 'b BatEnum.t -> unit
 (** Print and consume the contents of an enumeration.*)
 
 (**/**)
@@ -864,8 +864,8 @@ val default_printer_flags : printer_flags
 
 (** {7 Equivalent of classical directives} *)
 
-val printer_a : ((unit BatIO.output -> 'a -> unit) -> 'a -> 'b, 'b) BatPrint.directive
-val printer_t : ((unit BatIO.output -> unit) -> 'a, 'a) BatPrint.directive
+val printer_a : ((([`Write], unit) BatIO.output -> 'a -> unit) -> 'a -> 'b, 'b) BatPrint.directive
+val printer_t : ((([`Write], unit) BatIO.output -> unit) -> 'a, 'a) BatPrint.directive
 val printer_B : (bool -> 'a, 'a) BatPrint.directive
 val printer_c : (char -> 'a, 'a) BatPrint.directive
 val printer_C : (char -> 'a, 'a) BatPrint.directive
@@ -917,7 +917,7 @@ val printer_format : (('a, 'b) BatPrint.format -> 'a, 'b) BatPrint.directive
 val printer_sc : ?flags : printer_flags -> ([> `Read] BatString.Cap.t -> 'a, 'a) BatPrint.directive
 val printer_Sc : ?flags : printer_flags -> ([> `Read] BatString.Cap.t -> 'a, 'a) BatPrint.directive
 val printer_text : (Ulib.Text.t -> 'a, 'a) BatPrint.directive
-val printer_obj : (< print : unit BatIO.output -> unit; .. > -> 'a, 'a) BatPrint.directive
+val printer_obj : (< print : ([`Write], unit) BatIO.output -> unit; .. > -> 'a, 'a) BatPrint.directive
 val printer_exn : (exn -> 'a, 'a) BatPrint.directive
 
 (** {7 Value printers} *)

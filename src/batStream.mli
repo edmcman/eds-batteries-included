@@ -67,7 +67,7 @@ val of_enum : 'a BatEnum.t -> 'a t
     Reading the resulting stream will consume elements from the enumeration.
     This is the preferred manner of creating a stream.*)
 
-val of_input :   BatIO.input    -> char t
+val of_input : [> `Read] BatIO.input -> char t
 (** Convert an [input] to a stream.*)
 
 val to_list : 'a t -> 'a list
@@ -84,7 +84,7 @@ val to_string_fun : ('a -> string) -> 'a t -> string
 
 (** {6 Stream consumers} *)
 
-val on_output:   'a BatIO.output-> char t -> unit
+val on_output: ([> `Write], 'a) BatIO.output-> char t -> unit
 (** Convert an [output] to a stream.*)
 
 

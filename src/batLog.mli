@@ -25,8 +25,8 @@ open BatIO
 
 (** Get and set the default output channel for simple logging.
     Defaults to stderr *)
-val get_output : unit -> unit output
-val set_output : unit output -> unit
+val get_output : unit -> ([`Write], unit) output
+val set_output : ([`Write], unit) output -> unit
 
 (** Get and set the text printed before each log message.  Defaults to
     the empty string. *)
@@ -50,7 +50,7 @@ val set_flags : flag list -> unit
 val print : ?fp:string -> string -> unit
 (** [print s] logs the message s, returning unit. *)
 
-val printf: ?fp:string -> ('a, unit output, unit) Pervasives.format -> 'a
+val printf: ?fp:string -> ('a, ([`Write], unit) output, unit) Pervasives.format -> 'a
 (** As [Printf.printf], only the message is printed to the logging
     output and prefixed with status information per the current flags and
     the currently set prefix. *)
@@ -59,14 +59,14 @@ val fatal : ?fp:string -> string -> 'a
 (** [fatal s] logs the message [s] and then calls [exit 1].  This
     exits the program with return code 1.  *)
 
-val fatalf: ?fp:string -> ('a, unit output, unit) Pervasives.format -> 'a
+val fatalf: ?fp:string -> ('a, ([`Write], unit) output, unit) Pervasives.format -> 'a
 (** [fatalf] allows a format string (as [Printf.printf])and the
     arguments to that format string to build the logging message.
     Exits the program with return code 1. *)
 
 
 module type S = sig
-  val out: 'a output
+  val out: ([`Write], 'a) output
   val prefix: string
   val flags: flag list
 end
@@ -75,7 +75,7 @@ module Make (S:S) : sig
   val print : ?fp:string -> string -> unit
   (** [print s] logs the message s, returning unit. *)
 
-  val printf: ?fp:string -> ('a, 'b output, unit) Pervasives.format -> 'a
+  val printf: ?fp:string -> ('a, ([`Write], 'b) output, unit) Pervasives.format -> 'a
   (** As [Printf.printf], only the message is printed to the logging
       output and prefixed with status information per the current flags and
       the currently set prefix. *)
@@ -84,7 +84,7 @@ module Make (S:S) : sig
   (** [fatal s] logs the message [s] and then calls [exit 1].  This
       exits the program with return code 1.  *)
 
-  val fatalf: ?fp:string -> ('a, 'a output, unit) Pervasives.format -> 'a
+  val fatalf: ?fp:string -> ('a, ([`Write], 'a) output, unit) Pervasives.format -> 'a
 (** [fatalf] allows a format string (as [Printf.printf])and the
     arguments to that format string to build the logging message.
     Exits the program with return code 1. *)
@@ -93,9 +93,9 @@ end
 
 type 'a logger = {
   print : ?fp:string -> string -> unit;
-  printf : 'b. ?fp:string -> ('b, 'a output, unit) Pervasives.format -> 'b;
+  printf : 'b. ?fp:string -> ('b, ([`Write], 'a) outputWrite, unit) Pervasives.format -> 'b;
   fatal: ?fp:string -> string -> 'a;
-  fatalf: 'b. ?fp:string -> ('b, 'a output, unit) Pervasives.format -> 'b;
+  fatalf: 'b. ?fp:string -> ('b, ([`Write], 'a) outputWrite, unit) Pervasives.format -> 'b;
 }
 
-val make_logger : 'a output -> string -> flag list -> 'a logger
+val make_logger : ([`Write], 'a) outputWrite -> string -> flag list -> 'a logger

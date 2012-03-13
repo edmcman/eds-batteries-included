@@ -39,10 +39,10 @@ val pass : ('a -> 'b) -> 'a -> 'b
     The typical use is to catch and report exceptions that
     escape a function application. *)
 
-val print : _ BatInnerIO.output -> exn -> unit
+val print : ([> `Write], _) BatInnerIO.output -> exn -> unit
 (** Print an exception.*)
 
-val print_backtrace: _ BatInnerIO.output -> unit
+val print_backtrace: ([> `Write], _) BatInnerIO.output -> unit
 (** [print_backtrace oc] Prints the an exception backtrace on the output channel [oc].
     @since 1.4.0
 *)

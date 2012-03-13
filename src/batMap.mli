@@ -277,9 +277,9 @@ sig
     (** {7 Printing}*)
 
     val print :  ?first:string -> ?last:string -> ?sep:string -> ?kvsep:string ->
-      ('a BatInnerIO.output -> key -> unit) ->
-      ('a BatInnerIO.output -> 'c -> unit) ->
-      'a BatInnerIO.output -> 'c t -> unit
+      (('cap, 'a) BatInnerIO.outputWrite -> key -> unit) ->
+      (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
+      ('cap, 'a) BatInnerIO.outputWrite -> 'c t -> unit
 
     (** Output signature of the functor {!Map.Make}. *)
 
@@ -600,9 +600,9 @@ val bindings : ('key, 'a) t -> ('key * 'a) list
 (** {7 Printing}*)
 
 val print :  ?first:string -> ?last:string -> ?sep:string -> ?kvsep:string ->
-  ('a BatInnerIO.output -> 'b -> unit) ->
-  ('a BatInnerIO.output -> 'c -> unit) ->
-  'a BatInnerIO.output -> ('b, 'c) t -> unit
+  (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) ->
+  (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
+  ('cap, 'a) BatInnerIO.outputWrite -> ('b, 'c) t -> unit
 
 
 
@@ -877,8 +877,8 @@ module PMap : sig
 (** {7 Printing}*)
 
   val print :  ?first:string -> ?last:string -> ?sep:string -> ?kvsep:string ->
-    ('a BatInnerIO.output -> 'b -> unit) ->
-    ('a BatInnerIO.output -> 'c -> unit) ->
-    'a BatInnerIO.output -> ('b, 'c) t -> unit
+    (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) ->
+    (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
+    ('cap, 'a) BatInnerIO.outputWrite -> ('b, 'c) t -> unit
 
 end

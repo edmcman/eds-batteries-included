@@ -136,8 +136,8 @@ val enum : 'a dq -> 'a BatEnum.t
 (** {6 Printing} *)
 
 val print : ?first:string -> ?last:string -> ?sep:string
-  -> ('a BatInnerIO.output -> 'b -> unit)
-  -> 'a BatInnerIO.output -> 'b dq -> unit
+  -> (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit)
+  -> ('cap, 'a) BatInnerIO.outputWrite -> 'b dq -> unit
   (** Print the contents of the deque. O(n) *)
 
 val t_printer : 'a BatValuePrinter.t -> 'a t BatValuePrinter.t

@@ -207,8 +207,8 @@ module type S =
     (** {7 Printing}*)
 
     val print :  ?first:string -> ?last:string -> ?sep:string ->
-      ('a BatInnerIO.output -> elt -> unit) ->
-      'a BatInnerIO.output -> t -> unit
+      (('cap, 'a) BatInnerIO.outputWrite -> elt -> unit) ->
+      ('cap, 'a) BatInnerIO.outputWrite -> t -> unit
 
 
       (** {6 Override modules}*)
@@ -453,8 +453,8 @@ val of_list: 'a list -> 'a t
 (** {7 Printing}*)
 
 val print :  ?first:string -> ?last:string -> ?sep:string ->
-  ('a BatInnerIO.output -> 'c -> unit) ->
-  'a BatInnerIO.output -> 'c t -> unit
+  (([> `Write], 'a) BatInnerIO.output -> 'c -> unit) ->
+  ([> `Write], 'a) BatInnerIO.output -> 'c t -> unit
 
 
 module PSet : sig
@@ -639,6 +639,6 @@ module PSet : sig
   (** {7 Printing}*)
 
   val print :  ?first:string -> ?last:string -> ?sep:string ->
-    ('a BatInnerIO.output -> 'c -> unit) ->
-    'a BatInnerIO.output -> 'c t -> unit
+    (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
+    ('cap, 'a) BatInnerIO.outputWrite -> 'c t -> unit
 end

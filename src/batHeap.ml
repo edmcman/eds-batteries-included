@@ -195,8 +195,8 @@ module type H = sig
   val of_enum   : elem BatEnum.t -> t
   val enum      : t -> elem BatEnum.t
   val print     :  ?first:string -> ?last:string -> ?sep:string
-    -> ('a BatInnerIO.output -> elem -> unit)
-    -> 'a BatInnerIO.output -> t -> unit
+    -> (('cap, 'a) BatInnerIO.outputWrite -> elem -> unit)
+    -> ('cap, 'a) BatInnerIO.outputWrite -> t -> unit
   val t_printer : elem BatValuePrinter.t -> t BatValuePrinter.t
 end
 

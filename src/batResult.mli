@@ -90,4 +90,4 @@ module Infix : sig
 end
 
 (** Print a result as Ok(x) or Bad(exn) *)
-val print : ('b BatInnerIO.output -> 'a -> unit) -> 'b BatInnerIO.output -> ('a, exn) t -> unit
+val print : (([> `Write], 'b) BatInnerIO.output -> 'a -> unit) -> ([> `Write], 'b) BatInnerIO.output -> ('a, exn) t -> unit

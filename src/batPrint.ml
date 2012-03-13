@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *)
 
-type ('a, 'b) directive = ((unit BatInnerIO.output -> unit) -> 'b) -> 'a
+type ('a, 'b) directive = ((([`Write], unit) BatInnerIO.outputWrite -> unit) -> 'b) -> 'a
 type pattern = string
 type ('a, 'b) format = {
   pattern : pattern;

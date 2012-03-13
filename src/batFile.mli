@@ -121,7 +121,7 @@ type open_in_flag =
   | `nonblock (**Open in non-blocking mode                                  *)
   | `mmap     (**Open in memory-mapped mode (experimental)*)                 ]
 
-val open_in : ?mode:(open_in_flag list) -> ?perm:permission -> string -> input
+val open_in : ?mode:(open_in_flag list) -> ?perm:permission -> string -> [`Read | `Seek] input
 (** [open_in file_name] opens the file named [file_name] for reading.
 
     {b Note} You will need to close the file manually, with
@@ -130,7 +130,7 @@ val open_in : ?mode:(open_in_flag list) -> ?perm:permission -> string -> input
 
     Naming conventions for files are platform-dependent.*)
 
-val with_file_in : ?mode:(open_in_flag list) -> ?perm:permission -> string -> (input -> 'a) -> 'a
+val with_file_in : ?mode:(open_in_flag list) -> ?perm:permission -> string -> ([`Read | `Seek] input -> 'a) -> 'a
 (** [with_file_in file_name f] opens the file named [file_name] for reading,
     invokes [f] to process the contents of that file then, once [f] has returned
     or triggered an exception, closes the file before proceeding. *)
@@ -151,7 +151,7 @@ type open_out_flag =
         [[`create; `trunc]]. *)
 
 
-val open_out : ?mode:(open_out_flag list) -> ?perm:permission -> string -> unit output
+val open_out : ?mode:(open_out_flag list) -> ?perm:permission -> string -> ([`Write | `Seek],  unit) output
   (** [open_out file_name] opens the file named [file_name] for writing.
 
       {b Note} You will need to close the file manually, with
@@ -160,7 +160,7 @@ val open_out : ?mode:(open_out_flag list) -> ?perm:permission -> string -> unit 
 
       Naming conventions for files are platform-dependent.*)
 
-val with_file_out: ?mode:(open_out_flag list) -> ?perm:permission -> string -> (unit output -> 'a) -> 'a
+val with_file_out: ?mode:(open_out_flag list) -> ?perm:permission -> string -> (([`Seek | `Write], unit) output -> 'a) -> 'a
 (** [with_file_out file_name f] opens the file named [file_name] for writing,
     invokes [f] to write onto that file then, once [f] has returned or triggered
     an exception, closes the file before proceeding. *)
@@ -172,7 +172,7 @@ type open_temporary_out_flag =
   | `delete_on_exit (**Should the file be deleted when program ends?*) ]
 
 val open_temporary_out: ?mode:(open_temporary_out_flag list) -> ?prefix:string -> ?suffix:string -> unit ->
-  (unit output * string)
+  (([`Write | `Seek], unit) output * string)
 (** [open_temporary_out ()] opens a new temporary file for writing.
 
     @param prefix a string which should appear at the start of your temporary file name
@@ -187,7 +187,7 @@ val open_temporary_out: ?mode:(open_temporary_out_flag list) -> ?prefix:string -
 
     Naming conventions for files are platform-dependent.*)
 
-val with_temporary_out: ?mode:(open_temporary_out_flag list) -> ?prefix:string -> ?suffix:string -> (unit output -> string -> 'a) -> 'a
+val with_temporary_out: ?mode:(open_temporary_out_flag list) -> ?prefix:string -> ?suffix:string -> (([`Write | `Seek], unit) output -> string -> 'a) -> 'a
 (** [with_temporary_out f] opens a new temporary file for writing, invokes [f] with
     to write onto that file then, once [f] has returned or triggered an exception,
     closes the file before proceeding.

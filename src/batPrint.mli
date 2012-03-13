@@ -276,7 +276,7 @@
     and not in extending its behavior or understanding its internal mechanisms.
 *)
 
-type ('a, 'b) directive = ((unit BatInnerIO.output -> unit) -> 'b) -> 'a
+type ('a, 'b) directive = ((([`Write], unit) BatInnerIO.outputWrite -> unit) -> 'b) -> 'a
   (** The underlying type of a directive. Directives are the basic elements of
       formats.
 
@@ -353,7 +353,7 @@ type pattern = string
         For example the format string (with the syntax extension)
         [p"%s = %d"] will produce the pattern ["%(0) = %(1)"] *)
 
-val format : unit BatInnerIO.output -> pattern -> (unit BatInnerIO.output -> unit) array -> unit
+val format : ('cap, unit) BatInnerIO.outputWrite -> pattern -> (('cap, unit) BatInnerIO.outputWrite -> unit) array -> unit
   (** [format oc pattern directives] prints [pattern] on [oc], using
       [directives] to handle directives (as indices) in the pattern.
 
@@ -445,7 +445,7 @@ val sprintf : ('a, string) format -> 'a
 
 (** {6 Generic functions}*)
 
-val fprintf : 'a BatInnerIO.output -> ('b, unit) format -> 'b
+val fprintf : (_, 'a) BatInnerIO.output -> ('b, unit) format -> 'b
   (**General formatting function.
 
      This function behaves mostly as {!printf} or {!eprintf} but,
@@ -468,7 +468,7 @@ val bprintf : Buffer.t -> ('a, unit) format -> 'a
 
 (** {6 Functions with continuations}*)
 
-val kfprintf : ('a BatInnerIO.output -> 'b) -> 'a BatInnerIO.output -> ('c, 'b) format -> 'c
+val kfprintf : (('cap, 'a) BatInnerIO.output -> 'b) -> ('cap, 'a) BatInnerIO.output -> ('c, 'b) format -> 'c
   (** [kfprintf k oc fmt] prints on [oc] then call [k] with [oc] as
       argument *)
 

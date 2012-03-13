@@ -29,7 +29,7 @@ open Lexing
 *)
 
 
-val from_input   : BatIO.input   -> lexbuf
+val from_input   : [> `Read] BatIO.input -> lexbuf
 (** Create a lexer buffer on the given input
    [Lexing.from_input inp] returns a lexer buffer which reads
    from the input [inp], at the current reading position. *)
@@ -37,7 +37,7 @@ val from_input   : BatIO.input   -> lexbuf
 
 (** {6 Deprecated}*)
 
-val from_channel : BatIO.input -> lexbuf
+val from_channel : [> `Read] BatIO.input -> lexbuf
 (** @deprecated As {!from_input}*)
 
 (**/**)

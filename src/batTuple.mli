@@ -106,12 +106,12 @@ module Tuple2 : sig
         elements. *)
 
   val print : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit) -> ('o BatIO.output -> 'b -> unit)
-    -> 'o BatIO.output -> ('a * 'b) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'b -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'b) -> unit
 
   val printn : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit)
-    -> 'o BatIO.output -> ('a * 'a) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'a) -> unit
 
   val compare : ?cmp1:('a -> 'a -> int) -> ?cmp2:('b -> 'b -> int) -> ('a * 'b) -> ('a * 'b) -> int
 
@@ -166,12 +166,12 @@ module Tuple3 : sig
         elements. *)
 
   val print : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit) -> ('o BatIO.output -> 'b -> unit) -> ('o BatIO.output -> 'c -> unit)
-    -> 'o BatIO.output -> ('a * 'b * 'c) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'b -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'c -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'b * 'c) -> unit
 
   val printn : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit)
-    -> 'o BatIO.output -> ('a * 'a * 'a) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'a * 'a) -> unit
 
   val compare : ?cmp1:('a -> 'a -> int) -> ?cmp2:('b -> 'b -> int) -> ?cmp3:('c -> 'c -> int) -> ('a * 'b * 'c) -> ('a * 'b * 'c) -> int
 
@@ -238,12 +238,12 @@ module Tuple4 : sig
         elements. *)
 
   val print : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit) -> ('o BatIO.output -> 'b -> unit) -> ('o BatIO.output -> 'c -> unit) -> ('o BatIO.output -> 'd -> unit)
-    -> 'o BatIO.output -> ('a * 'b * 'c * 'd) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'b -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'c -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'd -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'b * 'c * 'd) -> unit
 
   val printn : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit)
-    -> 'o BatIO.output -> ('a * 'a * 'a * 'a) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'a * 'a * 'a) -> unit
 
   val compare : ?cmp1:('a -> 'a -> int) -> ?cmp2:('b -> 'b -> int) -> ?cmp3:('c -> 'c -> int) -> ?cmp4:('d -> 'd -> int) -> ('a * 'b * 'c * 'd) -> ('a * 'b * 'c * 'd) -> int
 
@@ -329,12 +329,12 @@ module Tuple5 : sig
         elements. *)
 
   val print : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit) -> ('o BatIO.output -> 'b -> unit) -> ('o BatIO.output -> 'c -> unit) -> ('o BatIO.output -> 'd -> unit) -> ('o BatIO.output -> 'e -> unit)
-    -> 'o BatIO.output -> ('a * 'b * 'c * 'd * 'e) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'b -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'c -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'd -> unit) -> (('o, 'acc) BatIO.outputWrite -> 'e -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'b * 'c * 'd * 'e) -> unit
 
   val printn : ?first:string -> ?sep:string -> ?last:string
-    -> ('o BatIO.output -> 'a -> unit)
-    -> 'o BatIO.output -> ('a * 'a * 'a * 'a * 'a) -> unit
+    -> (('o, 'acc) BatIO.outputWrite -> 'a -> unit)
+    -> ('o, 'acc) BatIO.outputWrite -> ('a * 'a * 'a * 'a * 'a) -> unit
 
   val compare : ?cmp1:('a -> 'a -> int) -> ?cmp2:('b -> 'b -> int) -> ?cmp3:('c -> 'c -> int) -> ?cmp4:('d -> 'd -> int) -> ?cmp5:('e -> 'e -> int) -> ('a * 'b * 'c * 'd * 'e) -> ('a * 'b * 'c * 'd * 'e) -> int
 

@@ -132,7 +132,7 @@ end
 
 (** {7 Printing}*)
 
-val print : ('a BatInnerIO.output -> 'b -> unit) -> 'a BatInnerIO.output -> 'b t -> unit
+val print : (([> `Write], 'a) BatInnerIO.output -> 'b -> unit) -> ([> `Write], 'a) BatInnerIO.output -> 'b t -> unit
 
 val t_printer : 'a BatValuePrinter.t -> 'a t BatValuePrinter.t
 

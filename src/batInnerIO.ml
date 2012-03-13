@@ -35,6 +35,8 @@ type 'cap input = {
   in_upstream: [`Read] input weak_set
 }
 
+type 'cap inputRead = ([> `Read] as 'cap) input
+
 type ('cap, 'a) output = {
   mutable out_write : char -> unit;
   mutable out_output: string -> int -> int -> int;
@@ -46,6 +48,7 @@ type ('cap, 'a) output = {
     (** The set of outputs which have been created to write to this output.*)
 }
 
+type ('cap, 'a) outputWrite = ([> `Write] as 'cap, 'a) output
 
 module Input =
 struct
@@ -193,6 +196,7 @@ let wrap_out_gen ?(seek=bad_seek_out) ~write ~output ~flush ~close ~underlying  
 		      close ());
       out_flush  = flush;
       out_id     = uid ();
+      out_seek   = seek;
       out_upstream = weak_create 2
     }
   in

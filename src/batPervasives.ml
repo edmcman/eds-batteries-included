@@ -260,9 +260,9 @@ let argv = Sys.argv
 
   let open_out          = BatFile.open_out
   let open_out_bin name =
-    BatIO.output_channel ~cleanup:true (open_out_bin name)
+    BatIO.output_channel_seekable ~cleanup:true (open_out_bin name)
   let open_out_gen mode perm name =
-    BatIO.output_channel ~cleanup:true (open_out_gen mode perm name)
+    BatIO.output_channel_seekable ~cleanup:true (open_out_gen mode perm name)
 
   let flush             = BatIO.flush
   let flush_all         = BatIO.flush_all
@@ -283,9 +283,9 @@ let argv = Sys.argv
     with _ -> ()
 
   let open_in           = BatFile.open_in
-  let open_in_bin name  = BatIO.input_channel ~cleanup:true (open_in_bin name)
+  let open_in_bin name  = BatIO.input_channel_seekable ~cleanup:true (open_in_bin name)
   let open_in_gen mode perm filename =
-    BatIO.input_channel ~cleanup:true (open_in_gen mode perm filename)
+    BatIO.input_channel_seekable ~cleanup:true (open_in_gen mode perm filename)
 
   let input_char        = BatIO.read
   let input_line ic     = try BatIO.read_line ic with BatIO.No_more_input -> raise End_of_file

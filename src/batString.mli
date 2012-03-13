@@ -526,19 +526,19 @@ val eq : t -> t -> bool
 
 (** {7 Printing}*)
 
-val print: 'a BatInnerIO.output -> string -> unit
+val print: (_, 'a) BatInnerIO.output -> string -> unit
 (**Print a string.
 
    Example: [String.print stdout "foo\n"]
 *)
 
-val println: 'a BatInnerIO.output -> string -> unit
+val println: (_, 'a) BatInnerIO.output -> string -> unit
 (**Print a string, end the line.
 
    Example: [String.println stdout "foo"]
 *)
 
-val print_quoted: 'a BatInnerIO.output -> string -> unit
+val print_quoted: (_, 'a) BatInnerIO.output -> string -> unit
 (**Print a string, with quotes as added by the [quote] function.
 
    [String.print_quoted stdout "foo"] prints ["foo"] (with the quotes).
@@ -818,11 +818,11 @@ val icompare: [> `Read] t -> [> `Read] t -> int
 
 (** {7 Printing}*)
 
-val print: 'a BatInnerIO.output -> [> `Read] t -> unit
+val print: (_, 'a) BatInnerIO.output -> [> `Read] t -> unit
 
-val println: 'a BatInnerIO.output -> [> `Read] t -> unit
+val println: (_, 'a) BatInnerIO.output -> [> `Read] t -> unit
 
-val print_quoted: 'a BatInnerIO.output -> [> `Read] t -> unit
+val print_quoted: (_, 'a) BatInnerIO.output -> [> `Read] t -> unit
 
 val t_printer : [> `Read] t BatValuePrinter.t
 

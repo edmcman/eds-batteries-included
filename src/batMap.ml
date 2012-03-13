@@ -702,9 +702,9 @@ sig
   (** {7 Printing}*)
 
   val print :  ?first:string -> ?last:string -> ?sep:string -> ?kvsep:string ->
-    ('a BatInnerIO.output -> key -> unit) ->
-    ('a BatInnerIO.output -> 'c -> unit) ->
-    'a BatInnerIO.output -> 'c t -> unit
+    (('cap, 'a) BatInnerIO.outputWrite -> key -> unit) ->
+    (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
+    ('cap, 'a) BatInnerIO.outputWrite -> 'c t -> unit
 
   module Exceptionless : sig
     val find: key -> 'a t -> 'a option

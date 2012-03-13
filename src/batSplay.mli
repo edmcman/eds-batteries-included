@@ -24,7 +24,7 @@ module Map (Ord : BatInterfaces.OrderedType)
   : sig
     include BatMap.S with type key = Ord.t
     val print_as_list:
-      ('a BatInnerIO.output -> key -> unit) ->
-      ('a BatInnerIO.output -> 'c -> unit) ->
-      'a BatInnerIO.output -> 'c t -> unit
+      (('cap, 'a) BatInnerIO.outputWrite -> key -> unit) ->
+      (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
+      ('cap, 'a) BatInnerIO.outputWrite -> 'c t -> unit
 end

@@ -244,7 +244,7 @@ module Compare : BatNumber.Compare with type bat__compare_t = t
 
 (** {7 Printing}*)
 
-val print : 'a BatIO.output -> t -> unit
+val print : ([> `Write], 'a) BatIO.output -> t -> unit
 val t_printer : t BatValuePrinter.t
 
 (**/**)

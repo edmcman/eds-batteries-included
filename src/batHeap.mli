@@ -78,8 +78,8 @@ val enum : 'a t -> 'a BatEnum.t
 (** {6 Printing} *)
 
 val print :  ?first:string -> ?last:string -> ?sep:string
-  -> ('a BatInnerIO.output -> 'b -> unit)
-  -> 'a BatInnerIO.output -> 'b t -> unit
+  -> (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit)
+  -> ('cap, 'a) BatInnerIO.outputWrite -> 'b t -> unit
   (** Print the contents of the heap in heap order. O(n log n) *)
 
 val t_printer : 'a BatValuePrinter.t -> 'a t BatValuePrinter.t
@@ -119,8 +119,8 @@ sig
   val enum      : t -> elem BatEnum.t
     (** See {!BatHeap.enum}. *)
   val print     :  ?first:string -> ?last:string -> ?sep:string
-    -> ('a BatInnerIO.output -> elem -> unit)
-    -> 'a BatInnerIO.output -> t -> unit
+    -> (('cap, 'a) BatInnerIO.outputWrite -> elem -> unit)
+    -> ('cap, 'a) BatInnerIO.outputWrite -> t -> unit
     (** See {!BatHeap.print}. *)
   val t_printer : elem BatValuePrinter.t -> t BatValuePrinter.t
     (** See {!BatHeap.t_printer}. *)
