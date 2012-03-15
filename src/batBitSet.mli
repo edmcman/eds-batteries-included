@@ -158,7 +158,7 @@ val sym_diff : t -> t -> t
 
 (** {6 Boilerplate code}*)
 
-val print: (_, 'a) BatInnerIO.output -> t -> unit
+val print: (_, 'a) BatInnerIO.outputWrite -> t -> unit
 (* Print the given BitSet to the given output channel.  This
    function prints a BitSet as a boolean vector, and pads to a multiple
    of 8 bits with zeros.  Thus, the bitset containing only 1 and 3 is

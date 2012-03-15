@@ -93,5 +93,5 @@ module Compare : BatNumber.Compare with type bat__compare_t = t
 (** {6 Boilerplate code}*)
 
 (** {7 Printing}*)
-val print: (_, 'a) BatInnerIO.output -> t -> unit
+val print: (_, 'a) BatInnerIO.outputWrite -> t -> unit
 val t_printer : t BatValuePrinter.t

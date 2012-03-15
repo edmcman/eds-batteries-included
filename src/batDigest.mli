@@ -51,10 +51,10 @@ val channel : _ inputRead -> int -> Digest.t
 *)
 
 
-val output : (_, 'a) output -> Digest.t -> unit
+val output : (_, 'a) outputWrite -> Digest.t -> unit
 (** Write a digest on the given output. *)
 
-val input : _ input -> Digest.t
+val input : _ inputRead -> Digest.t
 (** Read a digest from the given input. *)
 
 (** {6 Boilerplate code}*)

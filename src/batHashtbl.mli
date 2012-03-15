@@ -222,7 +222,7 @@ external hash_param : int -> int -> 'a -> int = "caml_hash_univ_param" "noalloc"
 val print :  ?first:string -> ?last:string -> ?sep:string -> ?kvsep:string ->
                               (('cap, 'a) BatInnerIO.outputWrite -> 'b -> unit) ->
                               (('cap, 'a) BatInnerIO.outputWrite -> 'c -> unit) ->
-                              (_, 'a) BatInnerIO.outputWrite -> ('b, 'c) t -> unit
+                              ('cap, 'a) BatInnerIO.outputWrite -> ('b, 'c) t -> unit
 
      (** {6 Override modules}*)
 

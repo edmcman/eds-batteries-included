@@ -37,10 +37,10 @@ open Format
 
 (** {6 Redirecting formatter output} *)
 
-val set_formatter_output : (_, 'a) output -> unit;;
+val set_formatter_output : (_, 'a) outputWrite -> unit;;
 
 
-val formatter_of_output : (_, _) output -> formatter;;
+val formatter_of_output : (_, _) outputWrite -> formatter;;
 (** [formatter_of_output out] returns a new formatter that
    writes to the corresponding output [out]. *)
 
@@ -56,16 +56,16 @@ val err_formatter : formatter;;
 
 (** {6 Basic functions to use with formatters} *)
 
-val pp_set_formatter_output      : formatter -> (_, _) output -> unit;;
+val pp_set_formatter_output      : formatter -> (_, _) outputWrite -> unit;;
 (** {6 Deprecated}*)
 
-val set_formatter_out_channel : (_, _) output -> unit;;
+val set_formatter_out_channel : (_, _) outputWrite -> unit;;
 (** Redirect the pretty-printer output to the given channel. *)
 
 
-val formatter_of_out_channel : (_, _) output -> formatter;;
+val formatter_of_out_channel : (_, _) outputWrite -> formatter;;
 (** [formatter_of_out_channel oc] returns a new formatter that
    writes to the corresponding channel [oc]. *)
 
 
-val pp_set_formatter_out_channel : formatter -> (_, _) output -> unit;;
+val pp_set_formatter_out_channel : formatter -> (_, _) outputWrite -> unit;;

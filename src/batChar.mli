@@ -116,7 +116,7 @@ end
 
 (** {7 Printing}*)
 
-val print: (_, 'a) BatInnerIO.output -> Char.t -> unit
+val print: (_, 'a) BatInnerIO.outputWrite -> Char.t -> unit
 val t_printer : char BatValuePrinter.t
 
 val cmp : char -> char -> int
